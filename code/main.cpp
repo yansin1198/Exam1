@@ -14,8 +14,6 @@ uLCD_4DGL uLCD(D1, D0, D2); // serial tx, serial rx, reset pin;
 AnalogOut aout(PA_4); //D7
 AnalogIn ain(A0);
 
-void getSample();
-
 float ADCdata[100];
 int p; //samplePoint
 int sampleIndex; //ADCdata Index
@@ -28,6 +26,12 @@ int prePosition = 6;
 int rate = 1;
 EventQueue queue(32 * EVENTS_EVENT_SIZE);
 Thread t;
+
+void getSample() {
+    for (int i = 0; i < 100; i++) {
+        printf("%f\r\n", ADCdata[i]);
+    }
+}
 
 void waveGenerate() {
     uLCD.locate(3, 14);
@@ -53,15 +57,17 @@ void waveGenerate() {
             }
             p++;
 
-            /*if (sampleIndex >= 100) {
+            if (sampleIndex >= 100) {
                 sampleIndex = 0;
                 countTimes = 0;
             } else if (sampleIndex < 100 && (countTimes % (frequency/2) == 0)) {
                 ADCdata[sampleIndex] = ain;
                 sampleIndex++;
             }
-            countTimes++;*/
+            countTimes++;
+
             wait_us(T/25);
+
         } else if (rate == 2) {
             T = 100000 / 8.4f;
             float peakHeight = 3.3f / 3.0f; 
@@ -88,8 +94,10 @@ void waveGenerate() {
                 ADCdata[sampleIndex] = ain;
                 sampleIndex++;
             }
-            countTimes++;*/
-            wait_us(T/25);
+            countTimes++;
+
+            wait_us(T/25);*/
+
         } else if (rate == 3) {
             T = 100000 / 8.4f;
             float peakHeight = 3.3f / 3.0f; 
@@ -209,6 +217,7 @@ void ISR3() {
    if (duration_cast<milliseconds>(debounce.elapsed_time()).count() > 500) {
         queue.call(Selection);
         queue.call(waveGenerate);
+        queue.call(getSample);
         debounce.reset();
    }
 }
